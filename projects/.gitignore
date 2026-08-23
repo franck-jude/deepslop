@@ -1,0 +1,16 @@
+# Artefacts
+*.log
+*.tmp
+*.pyc
+*.swp
+*.bak
+__pycache__/
+.pytest_cache/
+.coverage
+htmlcov/
+*.egg-info/
+
+# Dossiers temporaires
+logs/
+backups/
+modules/
