@@ -5,17 +5,17 @@ from typing import Dict, Optional
 
 def extract_files(response: str, default_path: Optional[str] = None) -> Dict[str, str]:
     result = {}
-    pattern = r"#?Create a file\s+([\w/]+\.py)\s*\n#?\[code\]\n(.*?)\n#?\[/code\]"
+    pattern = r"Create a file\s+([\w/]+\.py)\s*\n\[code\]\n(.*?)\n\[/code\]"
     matches = re.findall(pattern, response, re.DOTALL | re.IGNORECASE)
     for path, content in matches:
-        # Nettoyer le contenu : enlever les lignes "Create a file" qui pourraient être présentes
-        lines = content.splitlines()
-        clean_lines = []
-        for line in lines:
-            if line.strip().startswith("Create a file"):
-                continue
-            clean_lines.append(line)
-        result[path] = "\n".join(clean_lines).strip()
+        result[path] = content.strip()
+    if result:
+        return result
+
+    pattern = r"# Create a file\s+([\w/]+\.py)\s*\n# \[code\]\n(.*?)\n# \[/code\]"
+    matches = re.findall(pattern, response, re.DOTALL | re.IGNORECASE)
+    for path, content in matches:
+        result[path] = content.strip()
     if result:
         return result
 
