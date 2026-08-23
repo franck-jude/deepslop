@@ -1,0 +1,2 @@
+3. **Ajouter un mécanisme de fallback plus explicite**  
+   Si aucun fichier n'est extrait et que `default_path` n'est pas fourni, la fonction retourne `{}` sans explication. Un log ou une exception permettrait de comprendre pourquoi l'extraction a échoué.

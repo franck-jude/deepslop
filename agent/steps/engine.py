@@ -22,28 +22,9 @@ def execute_step(step: dict, context: dict) -> None:
         ui = DeepSeekUI()
         prompt = step.get("prompt", "What do you suggest?")
         response = ui.ask(prompt)
-
-        # Nettoyage des balises [code] et <code>
-        lines = response.splitlines()
-        clean_lines = []
-        in_code = False
-
-        for line in lines:
-            if "[code]" in line or "<code>" in line:
-                in_code = True
-                continue
-            if "[/code]" in line or "</code>" in line:
-                in_code = False
-                continue
-            if in_code:
-                # Supprimer les éventuels # en début de ligne
-                if line.strip().startswith("#"):
-                    line = line[1:].strip()
-                clean_lines.append(line)
-
-        response = "\n".join(clean_lines).strip()
         context["last_response"] = response
         print("📥 Réponse nettoyée reçue")
+
     elif step_type == "parse":
         response = context.get("last_response", "")
         if not response:

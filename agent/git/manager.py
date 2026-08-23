@@ -30,15 +30,3 @@ class GitManager:
     def diff(self):
         result = self._run(["git", "diff"])
         return result or "No differences"
-
-    # 🔥 Méthodes ajoutées pour les tests
-    def log(self, n=5):
-        result = self._run(["git", "log", f"-{n}", "--oneline"])
-        return result or "No commits yet"
-
-    def branch(self):
-        result = self._run(["git", "branch", "--show-current"])
-        return result or "main"
-
-    def is_repo(self):
-        return (self.repo_path / ".git").exists()
