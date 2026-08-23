@@ -1,10 +1,30 @@
 from pathlib import Path
 import subprocess
 import logging
+import re
 from agent.io.filesystem import write_file
 from agent.ui.browser import DeepSeekUI
 from agent.io.parser import extract_files
 from agent.git.manager import GitManager
+
+def clean_code(content: str) -> str:
+    """Nettoie le code pour éviter les erreurs d'indentation."""
+    lines = content.splitlines()
+    cleaned = []
+    in_code = False
+    for line in lines:
+        stripped = line.strip()
+        if not stripped and not in_code:
+            continue
+        if stripped.startswith("```") or stripped.startswith("[code]"):
+            in_code = not in_code
+            continue
+        if in_code:
+            # Supprimer les # en début de ligne
+            if stripped.startswith("#"):
+                stripped = stripped[1:].strip()
+            cleaned.append(stripped)
+    return "\n".join(cleaned)
 
 def execute_step(step: dict, context: dict) -> None:
     step_type = step.get("type")
@@ -12,7 +32,8 @@ def execute_step(step: dict, context: dict) -> None:
 
     if step_type == "write_file":
         filepath = root / step["path"]
-        write_file(filepath, step["content"])
+        content = step.get("content", "")
+        write_file(filepath, content)
 
     elif step_type == "mkdir":
         dirpath = root / step["path"]
@@ -21,7 +42,6 @@ def execute_step(step: dict, context: dict) -> None:
     elif step_type == "command":
         result = subprocess.run(step["command"], shell=True, cwd=context.get("cwd", root))
         if result.returncode != 0:
-            logging.warning(f"Commande échouée: {step['command']}")
             print(f"⚠️ Commande échouée: {step['command']}")
 
     elif step_type == "ask":
@@ -42,8 +62,10 @@ def execute_step(step: dict, context: dict) -> None:
             print("⚠️ Aucun fichier trouvé")
             return
         for filepath, content in files.items():
+            # 🔥 Nettoyer le code avant d'écrire
+            clean = clean_code(content)
             full_path = Path(filepath)
-            write_file(full_path, content)
+            write_file(full_path, clean)
             print(f"✅ Fichier écrit : {full_path}")
 
     elif step_type == "git":
