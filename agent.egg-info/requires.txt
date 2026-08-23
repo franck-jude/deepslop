@@ -1,0 +1,7 @@
+pyautogui
+pyperclip
+keyboard
+pytest
+pytest-cov
+pytest-mock
+pyyaml

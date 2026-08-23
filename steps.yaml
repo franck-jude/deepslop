@@ -1,0 +1,13 @@
+steps:
+  - type: ask
+    prompt: |
+      Answer ONLY with the code, no explanation, no markdown, no backticks, no comments with #.
+
+      Create a file agent/git/manager.py
+      [code]
+      class GitManager:
+          def __init__(self, repo_path="."):
+              self.repo_path = repo_path
+      [/code]
+
+  - type: parse

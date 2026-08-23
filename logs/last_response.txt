@@ -1,0 +1,33 @@
+Create a file agent/git/manager.py
+[code]
+import subprocess
+import os
+
+class GitManager:
+    def __init__(self, repo_path="."):
+        self.repo_path = repo_path
+        if not os.path.exists(os.path.join(repo_path, ".git")):
+            self.init()
+
+    def init(self):
+        subprocess.run(["git", "init"], cwd=self.repo_path, check=True)
+        return "Initialized empty Git repository"
+
+    def add(self, path):
+        subprocess.run(["git", "add", path], cwd=self.repo_path, check=True)
+        return f"Added {path}"
+
+    def commit(self, message):
+        subprocess.run(["git", "commit", "-m", message], cwd=self.repo_path, check=True)
+        return f"Committed: {message}"
+
+    def status(self):
+        result = subprocess.run(["git", "status", "--short"], cwd=self.repo_path,
+                               capture_output=True, text=True)
+        return result.stdout.strip() or "No changes"
+
+    def diff(self):
+        result = subprocess.run(["git", "diff"], cwd=self.repo_path,
+                               capture_output=True, text=True)
+        return result.stdout or "No differences"
+[/code]

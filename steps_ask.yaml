@@ -1,0 +1,3 @@
+steps:
+  - type: ask
+    prompt: "Hello DeepSeek, what is the capital of France?"

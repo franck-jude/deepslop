@@ -1,0 +1,5 @@
+steps:
+  - type: ask
+    prompt: "Create a file modules/test.py with a class Test that returns 'Hello'. Use the format: Create a file modules/test.py [code] class Test: def hello(self): return 'Hello' [/code]"
+
+  - type: parse
