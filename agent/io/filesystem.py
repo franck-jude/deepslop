@@ -28,4 +28,3 @@ def file_exists(path: Path) -> bool:
 def delete_file(path: Path) -> None:
     if path.exists():
         path.unlink()
-    

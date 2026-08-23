@@ -1,6 +1,6 @@
-from agent.io.parser import FileParser
+from agent.io.parser import parse_files
 
-def test_extract_files_with_code_blocks():
+def test_parse_files_with_code_blocks():
     response = (
         "Create a file modules/test.py\n"
         "[code]\n"
@@ -9,11 +9,11 @@ def test_extract_files_with_code_blocks():
         "        return 'Hello'\n"
         "[/code]"
     )
-    result = FileParser.extract_files(response)
+    result = parse_files(response)
     assert "modules/test.py" in result
     assert "class Test:" in result["modules/test.py"]
 
-def test_extract_files_with_hashes():
+def test_parse_files_with_hashes():
     response = (
         "# Create a file modules/test.py\n"
         "# [code]\n"
@@ -21,6 +21,6 @@ def test_extract_files_with_hashes():
         "    pass\n"
         "# [/code]"
     )
-    result = FileParser.extract_files(response)
+    result = parse_files(response)
     assert "modules/test.py" in result
     assert "class Test:" in result["modules/test.py"]

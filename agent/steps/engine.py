@@ -3,7 +3,6 @@ import subprocess
 from agent.io.filesystem import write_file
 from agent.ui.browser import DeepSeekUI
 
-
 def execute_step(step: dict, context: dict) -> None:
     step_type = step.get("type")
     root = context.get("root", Path.cwd())
@@ -28,6 +27,7 @@ def execute_step(step: dict, context: dict) -> None:
         lines = response.splitlines()
         clean_lines = []
         in_code = False
+
         for line in lines:
             if "[code]" in line or "<code>" in line:
                 in_code = True
@@ -36,9 +36,12 @@ def execute_step(step: dict, context: dict) -> None:
                 in_code = False
                 continue
             if in_code:
+                # Supprimer les éventuels # en début de ligne
+                if line.strip().startswith("#"):
+                    line = line[1:].strip()
                 clean_lines.append(line)
 
-        response = "\n".join(clean_lines)
+        response = "\n".join(clean_lines).strip()
         context["last_response"] = response
         print("📥 Réponse nettoyée reçue")
     elif step_type == "parse":
@@ -78,11 +81,10 @@ def execute_step(step: dict, context: dict) -> None:
         elif action == "diff":
             print(git.diff())
         else:
-            print("⚠️ Action Git inconnue : {action}") 
+            print(f"⚠️ Action Git inconnue : {action}")
 
     else:
-        raise ValueError("Type de step inconnu : {step_type}")
-
+        raise ValueError(f"Type de step inconnu : {step_type}")
 
 def execute_steps(steps: list, context: dict) -> None:
     for step in steps:

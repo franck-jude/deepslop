@@ -1,5 +1,5 @@
 import pytest
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch, MagicMock
 from agent.steps.engine import execute_step
 
 
@@ -9,12 +9,12 @@ def test_execute_ask():
 
     with patch("agent.steps.engine.DeepSeekUI") as MockUI:
         mock_instance = MockUI.return_value
-        # La réponse doit contenir [code] pour être nettoyée
         mock_instance.ask.return_value = "[code]\nMocked response\n[/code]"
 
         execute_step(step, context)
 
         mock_instance.ask.assert_called_once_with("Hello")
+        # La réponse est nettoyée : on attend "Mocked response"
         assert context.get("last_response") == "Mocked response"
 
 
