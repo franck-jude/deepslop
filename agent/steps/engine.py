@@ -1,7 +1,10 @@
 from pathlib import Path
 import subprocess
+import logging
 from agent.io.filesystem import write_file
 from agent.ui.browser import DeepSeekUI
+from agent.io.parser import extract_files
+from agent.git.manager import GitManager
 
 def execute_step(step: dict, context: dict) -> None:
     step_type = step.get("type")
@@ -16,7 +19,10 @@ def execute_step(step: dict, context: dict) -> None:
         dirpath.mkdir(parents=True, exist_ok=True)
 
     elif step_type == "command":
-        subprocess.run(step["command"], shell=True, cwd=context.get("cwd", root))
+        result = subprocess.run(step["command"], shell=True, cwd=context.get("cwd", root))
+        if result.returncode != 0:
+            logging.warning(f"Commande échouée: {step['command']}")
+            print(f"⚠️ Commande échouée: {step['command']}")
 
     elif step_type == "ask":
         ui = DeepSeekUI()
@@ -30,30 +36,27 @@ def execute_step(step: dict, context: dict) -> None:
         if not response:
             print("⚠️ Aucune réponse à parser")
             return
-
         default_path = step.get("path", None)
-        from agent.io.parser import extract_files
         files = extract_files(response, default_path=default_path)
-
         if not files:
             print("⚠️ Aucun fichier trouvé")
             return
-
         for filepath, content in files.items():
             full_path = Path(filepath)
             write_file(full_path, content)
             print(f"✅ Fichier écrit : {full_path}")
 
     elif step_type == "git":
-        from agent.git.manager import GitManager
         git = GitManager(str(root))
         action = step.get("action")
-
         if action == "init":
             print(git.init())
         elif action == "add":
             path = step.get("path", ".")
-            print(git.add(path))
+            try:
+                print(git.add(path))
+            except FileNotFoundError as e:
+                print(f"⚠️ {e}")
         elif action == "commit":
             msg = step.get("message", "Auto-commit")
             print(git.commit(msg))
@@ -61,6 +64,8 @@ def execute_step(step: dict, context: dict) -> None:
             print(git.status())
         elif action == "diff":
             print(git.diff())
+        elif action == "log":
+            print(git.log())
         else:
             print(f"⚠️ Action Git inconnue : {action}")
 
